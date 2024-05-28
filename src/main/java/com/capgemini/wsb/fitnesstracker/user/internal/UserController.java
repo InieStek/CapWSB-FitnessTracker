@@ -2,11 +2,13 @@ package com.capgemini.wsb.fitnesstracker.user.internal;
 
 import com.capgemini.wsb.fitnesstracker.training.internal.TrainingServiceImpl;
 import com.capgemini.wsb.fitnesstracker.user.api.User;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -52,7 +54,7 @@ class UserController {
         return userService.getUser(userId);
     }
 
-    @PostMapping("/createUser")
+    @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public User createUser(@RequestBody UserDto userDto) {
         return userService.createUser(userMapper.toEntity(userDto));
@@ -80,6 +82,12 @@ class UserController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/older/{date}")
+    public ResponseEntity<List<User>> getAllUsersOlderThan(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        List<User> users = userService.getUsersOlderThan(date);
+        return ResponseEntity.ok(users);
     }
 
 }

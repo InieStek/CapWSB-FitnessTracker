@@ -1,6 +1,8 @@
 package com.capgemini.wsb.fitnesstracker.user.api;
 
 import com.capgemini.wsb.fitnesstracker.user.internal.UserDto;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -16,4 +18,5 @@ public interface UserService {
     User editUser(Long id, UserDto userDto);
 
 
+    List<User> getUsersOlderThan(LocalDate date);
 }
