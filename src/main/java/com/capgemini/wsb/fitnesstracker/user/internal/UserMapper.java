@@ -23,7 +23,7 @@ class UserMapper {
     }
 
     static BasicUser basicToDTO(User user) {
-        return new BasicUser(user.getId(), user.getFirstName());
+        return new BasicUser(user.getId(), user.getFirstName(), user.getLastName());
     }
 
 }

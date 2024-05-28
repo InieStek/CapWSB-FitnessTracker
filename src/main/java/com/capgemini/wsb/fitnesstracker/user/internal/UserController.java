@@ -2,10 +2,13 @@ package com.capgemini.wsb.fitnesstracker.user.internal;
 
 import com.capgemini.wsb.fitnesstracker.training.internal.TrainingServiceImpl;
 import com.capgemini.wsb.fitnesstracker.user.api.User;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -35,7 +40,7 @@ class UserController {
                           .toList();
     }
 
-    @GetMapping("/basic")
+    @GetMapping("/simple")
     public List<BasicUser> getAllBasicUser() {
         return userService.findAllUsers().stream()
             .map(UserMapper::basicToDTO)
@@ -48,30 +53,33 @@ class UserController {
     }
 
     @PostMapping("/createUser")
+    @ResponseStatus(HttpStatus.CREATED)
     public User createUser(@RequestBody UserDto userDto) {
         return userService.createUser(userMapper.toEntity(userDto));
     }
 
-    @DeleteMapping("/deleteUser/{userId}")
+    @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable Long userId) {
         trainingService.deleteTrainingByUserId(userId);
         userService.deleteUser(userId);
-        log.info("Deleted user: {}", userId);
     }
 
-    @PutMapping("/updateUser/{userId}")
+    @PutMapping("/{userId}")
     public User updateUser(@PathVariable Long userId, @RequestBody UserDto userDto) {
         return userService.editUser(userId, userDto);
     }
 
-    @GetMapping("/findByEmail/{email}")
-    public Optional<User> getUserByMail(@PathVariable String email) {
-        return userService.getUserByEmail(email);
-    }
-
-    @GetMapping("/findByFragmentEmail/{email}")
-    public Optional<User> getUserByFragmentEmail(@PathVariable String email) {
-        return userService.findByFragmentEmail(email);
+    @GetMapping("/email")
+    public ResponseEntity<List<User>> getUserByMail(@RequestParam String email) {
+        Optional<User> userOptional = userService.getUserByEmail(email);
+        if (userOptional.isPresent()) {
+            List<User> userList = new ArrayList<>();
+            userList.add(userOptional.get());
+            return ResponseEntity.ok().body(userList);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }

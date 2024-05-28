@@ -15,6 +15,5 @@ public interface UserService {
 
     User editUser(Long id, UserDto userDto);
 
-    Optional<User> findByFragmentEmail(String email);
 
 }
